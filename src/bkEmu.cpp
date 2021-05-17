@@ -46,7 +46,7 @@ void EmulatorTaskMain(void *unused)
 	{
 		vTaskDelay(1); // important to avoid task watchdog timeouts
 
-		//bk_loop();
+		bk_loop();
 	}
 }
 
@@ -61,114 +61,117 @@ int32_t bk_loop()
 	//Uint32 last_screen_update = SDL_GetTicks();
 	//double timing_delta = ticks - SDL_GetTicks() * (TICK_RATE/1000.0);
 
-	result = ll_word(p, p->regs[PC], &p->ir);
-	p->regs[PC] += 2;
-	if (result == OK)
+	for (int i = 0; i < 5; i++)
 	{
-		result = (itab[p->ir >> 6].func)(p);
-		//timing(p);
-	}
-
-	if (result != OK)
-	{
-		switch (result)
+		result = ll_word(p, p->regs[PC], &p->ir);
+		p->regs[PC] += 2;
+		if (result == OK)
 		{
-		case BUS_ERROR: 
-			ticks += 64;
-			break;
-		case ODD_ADDRESS:
-			result2 = service((d_word) 04);
-			break;
-		case CPU_ILLEGAL: 
-			result2 = service((d_word) 010);
-			break;
-		case CPU_BPT: 
-			result2 = service((d_word) 014);
-			break;
-		case CPU_EMT: 
-			result2 = service((d_word) 030);
-			break;
-		case CPU_TRAP: 
-			result2 = service((d_word) 034);
-			break;
-		case CPU_IOT: 
-			result2 = service((d_word) 020);
-			break;
-		case CPU_WAIT:
-			in_wait_instr = 1;
-			result2 = OK;
-			break;
-		case CPU_RTT:
-			rtt = 1;
-			result2 = OK;
-			break;
-		case CPU_HALT:
-			io_stop_happened = 4;
-			result2 = service((d_word) 004);
-			break;
-		default:
-			// Unexpected return
-			//flag = 0;
-			result2 = OK;
-			break;
+			result = (itab[p->ir >> 6].func)(p);
+			//timing(p);
 		}
-		if (result2 != OK)
-		{
-			// Double trap
-			ll_word(p, 0177716, &p->regs[PC]);
-			p->regs[PC] &= 0177400;
-		}
-	}
-/*
-	// Keyboard input
-	int32_t scanCode = Ps2_GetScancode();
-	if (scanCode > 0)
-	{
-		if ((scanCode & 0xFF00) == 0xF000)
-		{
-			// key up
 
-			scanCode = ((scanCode & 0xFF0000) >> 8 | (scanCode & 0xFF));
-			if (!OnKey(scanCode, true))
+		if (result != OK)
+		{
+			switch (result)
 			{
-				returnValue = scanCode;
+			case BUS_ERROR: 
+				ticks += 64;
+				break;
+			case ODD_ADDRESS:
+				result2 = service((d_word) 04);
+				break;
+			case CPU_ILLEGAL: 
+				result2 = service((d_word) 010);
+				break;
+			case CPU_BPT: 
+				result2 = service((d_word) 014);
+				break;
+			case CPU_EMT: 
+				result2 = service((d_word) 030);
+				break;
+			case CPU_TRAP: 
+				result2 = service((d_word) 034);
+				break;
+			case CPU_IOT: 
+				result2 = service((d_word) 020);
+				break;
+			case CPU_WAIT:
+				in_wait_instr = 1;
+				result2 = OK;
+				break;
+			case CPU_RTT:
+				rtt = 1;
+				result2 = OK;
+				break;
+			case CPU_HALT:
+				io_stop_happened = 4;
+				result2 = service((d_word) 004);
+				break;
+			default:
+				// Unexpected return
+				//flag = 0;
+				result2 = OK;
+				break;
+			}
+			if (result2 != OK)
+			{
+				// Double trap
+				ll_word(p, 0177716, &p->regs[PC]);
+				p->regs[PC] &= 0177400;
 			}
 		}
-		else
+	/*
+		// Keyboard input
+		int32_t scanCode = Ps2_GetScancode();
+		if (scanCode > 0)
 		{
-			// key down
-			OnKey(scanCode, false);
+			if ((scanCode & 0xFF00) == 0xF000)
+			{
+				// key up
+
+				scanCode = ((scanCode & 0xFF0000) >> 8 | (scanCode & 0xFF));
+				if (!OnKey(scanCode, true))
+				{
+					returnValue = scanCode;
+				}
+			}
+			else
+			{
+				// key down
+				OnKey(scanCode, false);
+			}
 		}
-	}
-*/
-	if ((p->psw & 020) && (rtt == 0))
-	{ 
-		if (service((d_word) 014) != OK)
+	*/
+		if ((p->psw & 020) && (rtt == 0))
+		{ 
+			if (service((d_word) 014) != OK)
+			{
+				// Double trap
+				ll_word(p, 0177716, &p->regs[PC]);
+				p->regs[PC] &= 0177400;
+				p->regs[SP] = 01000; 
+			}
+		}
+		rtt = 0;
+		p->total++;
+
+		//if (nflag)
+		//	sound_flush();
+
+	//		if (bkmodel && ticks >= ticks_timer) {
+	//			scr_sync();
+	//			if (timer_intr_enabled) {
+	//				ev_register(TIMER_PRI, service, 0, 0100);
+	//			}
+	//			ticks_timer += half_frame_delay;
+	//		}
+
+		int priority = (p->psw >> 5) & 7;
+		if (pending_interrupts && priority != 7)
 		{
-			// Double trap
-			ll_word(p, 0177716, &p->regs[PC]);
-			p->regs[PC] &= 0177400;
-			p->regs[SP] = 01000; 
+			ev_fire(priority);
 		}
-	}
-	rtt = 0;
-	p->total++;
-
-	//if (nflag)
-	//	sound_flush();
-
-//		if (bkmodel && ticks >= ticks_timer) {
-//			scr_sync();
-//			if (timer_intr_enabled) {
-//				ev_register(TIMER_PRI, service, 0, 0100);
-//			}
-//			ticks_timer += half_frame_delay;
-//		}
-
-	int priority = (p->psw >> 5) & 7;
-	if (pending_interrupts && priority != 7)
-	{
-		ev_fire(priority);
 	}
 
 	return returnValue;

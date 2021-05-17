@@ -40,7 +40,7 @@ void VideoController::InitPalette(uint32_t* palette, uint8_t foreColor, uint8_t 
         uint32_t attributeValue;
 		for (uint8_t bit = 0; bit < 4; bit++)
 		{
-            VGA_PIXELINROW(((uint8_t*)&attributeValue), bit) = this->createRawPixel(value & 0x08 ?  foreColor : backColor);
+            VGA_PIXELINROW(((uint8_t*)&attributeValue), 3 - bit) = this->createRawPixel(value & 0x08 ?  foreColor : backColor);
 			value <<= 1;
 		}
         
@@ -77,8 +77,8 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
     do
     {
         uint8_t pixelsByte = *pixels;
-        dest32[0] = palette[pixelsByte >> 4];
-        dest32[1] = palette[pixelsByte & 0x0F];
+        dest32[0] = palette[pixelsByte & 0x0F];
+        dest32[1] = palette[pixelsByte >> 4];
 
         dest32 += 2;
         pixels++;

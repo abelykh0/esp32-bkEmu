@@ -97,7 +97,7 @@ int bkEnvironment::WriteWord(uint16_t addr, uint16_t data)
 	if (addr & 0x1)
 	{
         this->WriteByte(addr, (uint8_t)data);
-        this->WriteByte(addr + 1, (uint8_t)data >> 8);
+        this->WriteByte(addr + 1, (uint8_t)(data >> 8));
         return ODD_ADDRESS;
 	}
 
