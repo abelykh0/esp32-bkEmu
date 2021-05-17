@@ -1,19 +1,17 @@
-/*
-
-#include "bkinput.h"
+#include "bkIO.h"
 #include "bkEmu.h"
-#include "Emulator/pdp/defines.h"
-#include "Keyboard/ps2Keyboard.h"
+#include "defines.h"
+//#include "Keyboard/ps2Keyboard.h"
 
 // 0020 Screen mode 0 - 512x256, FF - 256x256
 // 0023 Keyboard 0 - LAT, 80 - RUS
 
 // bit 6 : interrupt enable
 // bit 7 : status, 1 new key code available
-uint8_t port0177660 = 0x40;
+uint16_t port0177660 = 0x40;
 
 // bit 0..6 : key code
-uint8_t port0177662;
+uint16_t port0177662;
 
 // bit 6 : 0 key pressed
 uint16_t port0177716 = 0x40;
@@ -209,4 +207,3 @@ bool OnKey(uint32_t scanCode, bool isKeyUp)
 
 	return true;
 }
-*/

@@ -14,8 +14,8 @@
 //   FFC8 System Timer counter
 //   FFCA System Timer control
 
-/*
-
+#include "settings.h"
+#include "VideoController.h"
 #include "bkEmu.h"
 #include "bkInput.h"
 #include "basic.h"
@@ -23,16 +23,13 @@
 
 uint8_t RamBuffer[RAM_AVAILABLE];
 pdp_regs pdp;
-BkScreen* _bkScreen;
+//BkScreen* _bkScreen;
 
 flag_t bkmodel = 0;
 flag_t io_stop_happened;
 unsigned short last_branch;
 
 const int TICK_RATE = 3000000; // CPU clock speed
-*/
-#include "settings.h"
-#include "VideoController.h"
 
 VideoController Screen;
 
@@ -52,7 +49,7 @@ void bk_setup(BkScreen* bkScreen)
 	_bkScreen = bkScreen;
 	bk_reset();
 }
-
+*/
 int32_t bk_loop()
 {
 	pdp_regs* p = &pdp;
@@ -425,5 +422,3 @@ extern "C" int sl_word(pdp_regs* p, c_addr addr, d_word word)
 extern "C" void q_reset()
 {
 }
-
-*/

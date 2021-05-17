@@ -6,9 +6,9 @@
 #define BEEPER
 
 #define RESOLUTION VGA_512x512_58Hz
-#define SCREEN_WIDTH  80
-#define SCREEN_HEIGHT 60
+#define SCREEN_WIDTH  64
+#define SCREEN_HEIGHT 32
 
-#define DEBUG_BAND_COLORS 0x2A10
+#define OSD_COLORS 0x2A10
 
 #endif
