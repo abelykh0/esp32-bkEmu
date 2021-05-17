@@ -1,25 +1,13 @@
-/*
-
-#include "bkIO.h"
+#include "bkKeyboard.h"
 #include "bkEmu.h"
+#include "ps2Input.h"
+#include "bkEnvironment.h"
 #include "defines.h"
-//#include "Keyboard/ps2Keyboard.h"
-
-// 0020 Screen mode 0 - 512x256, FF - 256x256
-// 0023 Keyboard 0 - LAT, 80 - RUS
-
-// bit 6 : interrupt enable
-// bit 7 : status, 1 new key code available
-uint16_t port0177660 = 0x40;
-
-// bit 0..6 : key code
-uint16_t port0177662;
-
-// bit 6 : 0 key pressed
-uint16_t port0177716 = 0x40;
 
 #define TTY_VECTOR      060
 #define TTY_VECTOR2     0274
+
+extern bkEnvironment Environment;
 
 char keyMap1[] = {
 	// A    B    C    D    E    F    G    H    I    J
@@ -178,7 +166,7 @@ bool OnKey(uint32_t scanCode, bool isKeyUp)
 			break;
 		default:
 			symbol = Ps2_ConvertScancode(scanCode);
-			if (RamBuffer[0x0023] == 0x80)
+			if (Environment.ReadByte(0x0023) == 0x80)
 			{
 				// РУС
 				symbol = convertSymbol(symbol, true);
@@ -193,21 +181,19 @@ bool OnKey(uint32_t scanCode, bool isKeyUp)
 		}
 	}
 
-	port0177660 |= 0x80;
-	port0177716 |= 0x04;
+	Environment.WriteByte(0177660, Environment.ReadByte(0177660) | 0x80);
+	Environment.WriteByte(0177716, Environment.ReadByte(0177716) | 0x04);
 	if (isKeyUp)
 	{
-		port0177716 &= ~0x80;
+		Environment.WriteByte(0177716, Environment.ReadByte(0177716) & ~0x80);
 	}
 	else
 	{
-		port0177716 |= 0x80;
+		Environment.WriteByte(0177716, Environment.ReadByte(0177716) | 0x80);
 	}
-	port0177662 = symbol & 0x7F;
+	Environment.WriteByte(0177662, symbol & 0x7F);
 
 	ev_register(TTY_PRI, tty_finish, 0, symbol);
 
 	return true;
 }
-
-*/

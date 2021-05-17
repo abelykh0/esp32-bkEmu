@@ -18,8 +18,11 @@
 #include "VideoController.h"
 #include "bkEnvironment.h"
 #include "bkEmu.h"
+#include "bkKeyboard.h"
 #include "basic.h"
 #include "monitor.h"
+#include "ps2Input.h"
+#include "defines.h"
 
 pdp_regs pdp;
 flag_t bkmodel = 0;
@@ -29,12 +32,23 @@ unsigned short last_branch;
 const int TICK_RATE = 3000000; // CPU clock speed
 
 static VideoController Screen;
-static bkEnvironment Environment;
+bkEnvironment Environment;
+static fabgl::PS2Controller* InputController;
+
+static void startKeyboard()
+{
+	InputController = new fabgl::PS2Controller();
+	InputController->begin(PS2Preset::KeyboardPort0);
+	Ps2_Initialize(InputController);
+}
 
 void EmulatorTaskMain(void *unused)
 {
 	Environment.Initialize();
 	Screen.Initialize(&Environment);
+
+	startKeyboard();
+
 	Screen.Start(RESOLUTION);
 
 	bk_reset();
@@ -61,7 +75,7 @@ int32_t bk_loop()
 	//Uint32 last_screen_update = SDL_GetTicks();
 	//double timing_delta = ticks - SDL_GetTicks() * (TICK_RATE/1000.0);
 
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 30000; i++)
 	{
 		result = ll_word(p, p->regs[PC], &p->ir);
 		p->regs[PC] += 2;
@@ -121,7 +135,7 @@ int32_t bk_loop()
 				p->regs[PC] &= 0177400;
 			}
 		}
-	/*
+
 		// Keyboard input
 		int32_t scanCode = Ps2_GetScancode();
 		if (scanCode > 0)
@@ -142,7 +156,7 @@ int32_t bk_loop()
 				OnKey(scanCode, false);
 			}
 		}
-	*/
+
 		if ((p->psw & 020) && (rtt == 0))
 		{ 
 			if (service((d_word) 014) != OK)

@@ -3,11 +3,6 @@
 
 #include "stdint.h"
 #include "BkScreen.h"
-#include "defines.h"
-
-//using namespace bk;
-
-extern pdp_regs pdp;
 
 int32_t bk_loop();
 void bk_reset();
