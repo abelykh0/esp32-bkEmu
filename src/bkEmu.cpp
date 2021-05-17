@@ -61,7 +61,7 @@ int32_t bk_loop()
 	//Uint32 last_screen_update = SDL_GetTicks();
 	//double timing_delta = ticks - SDL_GetTicks() * (TICK_RATE/1000.0);
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		result = ll_word(p, p->regs[PC], &p->ir);
 		p->regs[PC] += 2;

@@ -1,8 +1,21 @@
 #include "VideoController.h"
 #include "fabutils.h"
 
+// 512x256
 #define BACK_COLOR 0x10
 #define FORE_COLOR 0x3F
+
+// 256x256
+#define COLOR_00 0x00
+#define COLOR_01 0x30
+#define COLOR_10 0x0C
+#define COLOR_11 0x03
+
+// 256x256
+#define BW_00 0x00
+#define BW_01 0x15
+#define BW_10 0x2A
+#define BW_11 0x3F
 
 extern "C" void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine);
 
@@ -28,8 +41,10 @@ void VideoController::Start(char const* modeline)
 
     // Prepare palettes
     this->InitPalette(this->Palette512x256, FORE_COLOR, BACK_COLOR);
-    //this->InitPalette(this->Palette256x256color, 0xFF, FORE_COLOR, BACK_COLOR);
-    //this->InitPalette(this->Palette256x256bw, 0xFF, FORE_COLOR, BACK_COLOR);
+    uint8_t colors[] = { COLOR_00, COLOR_01, COLOR_10, COLOR_11 };
+    this->InitPalette(this->Palette256x256color, colors);
+    uint8_t bw[] = { BW_00, BW_01, BW_10, BW_11 };
+    this->InitPalette(this->Palette256x256bw, bw);
 }   
 
 void VideoController::InitPalette(uint32_t* palette, uint8_t foreColor, uint8_t backColor)
@@ -40,8 +55,8 @@ void VideoController::InitPalette(uint32_t* palette, uint8_t foreColor, uint8_t 
         uint32_t attributeValue;
 		for (uint8_t bit = 0; bit < 4; bit++)
 		{
-            VGA_PIXELINROW(((uint8_t*)&attributeValue), 3 - bit) = this->createRawPixel(value & 0x08 ?  foreColor : backColor);
-			value <<= 1;
+            VGA_PIXELINROW(((uint8_t*)&attributeValue), bit) = this->createRawPixel(value & 0x01 ?  foreColor : backColor);
+			value >>= 1;
 		}
         
         *palette = attributeValue;
@@ -51,7 +66,22 @@ void VideoController::InitPalette(uint32_t* palette, uint8_t foreColor, uint8_t 
 
 void VideoController::InitPalette(uint32_t* palette, uint8_t* colors)
 {
+	for (uint8_t i = 0; i < 16; i++)
+	{
+		uint8_t value = i;
+        uint32_t attributeValue;
+        uint8_t color = colors[value & 0x03];
+        VGA_PIXELINROW(((uint8_t*)&attributeValue), 0) = this->createRawPixel(color);
+        VGA_PIXELINROW(((uint8_t*)&attributeValue), 1) = this->createRawPixel(color);
 
+        value >>= 2;
+        color = colors[value & 0x03];
+        VGA_PIXELINROW(((uint8_t*)&attributeValue), 2) = this->createRawPixel(color);
+        VGA_PIXELINROW(((uint8_t*)&attributeValue), 3) = this->createRawPixel(color);
+
+        *palette = attributeValue;
+        palette++;
+	}
 }
 
 uint8_t IRAM_ATTR VideoController::createRawPixel(uint8_t color)
@@ -72,7 +102,15 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
     uint32_t* dest32 = (uint32_t*)dest;
     uint32_t* lastDest = dest32 + (2 * SCREEN_WIDTH);
     uint8_t* pixels = controller->VideoRam + (y * SCREEN_WIDTH);
-    uint32_t* palette = controller->Palette512x256;
+    uint32_t* palette;
+    if (*controller->ScreenMode == 0)
+    {
+        palette = controller->Palette512x256;
+    }
+    else
+    {
+        palette = controller->Palette256x256color;
+    }
 
     do
     {
@@ -82,5 +120,5 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
 
         dest32 += 2;
         pixels++;
-    } while (dest32 <= lastDest);
+    } while (dest32 < lastDest);
 }
