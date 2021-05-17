@@ -28,9 +28,7 @@
 //   FFCE (177716) Control external devices 
 //        bit 6 : beeper
 
-
 #include <stdint.h>
-#include "VideoController.h"
 
 class bkEnvironment
 {
@@ -42,15 +40,13 @@ private:
     uint8_t* _ports;
 
 public:
-	VideoController* Screen;
-    bkEnvironment(VideoController* screen);
-
     void Initialize();
 
+    uint8_t* GetPointer(uint16_t address);
     uint8_t ReadByte(uint16_t address);
 	uint16_t ReadWord(uint16_t address);
 	void WriteByte(uint16_t address, uint8_t data);
-	void WriteWord(uint16_t address, uint16_t data);
+	int WriteWord(uint16_t address, uint16_t data);
 };
 
 #endif

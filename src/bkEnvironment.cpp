@@ -1,15 +1,11 @@
 #include "bkEnvironment.h"
 #include "monitor.h"
 #include "basic.h"
+#include "defines.h"
 
 static uint8_t ram[0x4000];
 static uint8_t videoRam[0x4000];
 static uint8_t ports[0x80];
-
-bkEnvironment::bkEnvironment(VideoController* screen)
-{
-    this->Screen = screen;
-}
 
 void bkEnvironment::Initialize()
 {
@@ -18,8 +14,6 @@ void bkEnvironment::Initialize()
     this->_romMonitor = (uint8_t*)monitor;
     this->_romBasic = (uint8_t*)basic;
     this->_ports = ports;
-
-    this->Screen->VideoRam = this->_videoRam;
 }
 
 uint8_t bkEnvironment::ReadByte(uint16_t addr)
@@ -98,13 +92,13 @@ void bkEnvironment::WriteByte(uint16_t addr, uint8_t data)
     }
 }
 
-void bkEnvironment::WriteWord(uint16_t addr, uint16_t data)
+int bkEnvironment::WriteWord(uint16_t addr, uint16_t data)
 {
 	if (addr & 0x1)
 	{
         this->WriteByte(addr, (uint8_t)data);
         this->WriteByte(addr + 1, (uint8_t)data >> 8);
-        return;
+        return ODD_ADDRESS;
 	}
 
     switch (addr)
@@ -122,4 +116,31 @@ void bkEnvironment::WriteWord(uint16_t addr, uint16_t data)
             ((uint16_t*)this->_ports)[(addr - 0xFF80) >> 1] = data;
             break;
     }
+
+    return OK;
+}
+
+uint8_t* bkEnvironment::GetPointer(uint16_t addr)
+{
+    uint8_t* res;
+    switch (addr)
+    {
+        case 0x0000 ... 0x3fff:
+            res = &this->_ram[addr];
+            break;
+        case 0x4000 ... 0x7FFF:
+            res = &this->_videoRam[addr - 0x4000];
+            break;
+        case 0x8000 ... 0x9FFF:
+            res = &this->_romMonitor[addr - 0x8000];
+            break;
+        case 0xA000 ... 0xFF7F:
+            res = &this->_romBasic[addr - 0xA000];
+            break;
+        case 0xFF80 ... 0xFFFF:
+            res = &this->_ports[addr - 0xFF80];
+            break;
+    }
+
+    return res;
 }

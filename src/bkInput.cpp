@@ -1,3 +1,5 @@
+/*
+
 #include "bkIO.h"
 #include "bkEmu.h"
 #include "defines.h"
@@ -207,3 +209,5 @@ bool OnKey(uint32_t scanCode, bool isKeyUp)
 
 	return true;
 }
+
+*/

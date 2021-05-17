@@ -16,26 +16,28 @@
 
 #include "settings.h"
 #include "VideoController.h"
+#include "bkEnvironment.h"
 #include "bkEmu.h"
-#include "bkInput.h"
 #include "basic.h"
 #include "monitor.h"
 
-uint8_t RamBuffer[RAM_AVAILABLE];
 pdp_regs pdp;
-//BkScreen* _bkScreen;
-
 flag_t bkmodel = 0;
 flag_t io_stop_happened;
 unsigned short last_branch;
 
 const int TICK_RATE = 3000000; // CPU clock speed
 
-VideoController Screen;
+static VideoController Screen;
+static bkEnvironment Environment;
 
 void EmulatorTaskMain(void *unused)
 {
+	Environment.Initialize();
+	Screen.Initialize(&Environment);
 	Screen.Start(RESOLUTION);
+
+	bk_reset();
 
 	// Loop
 	while (true)
@@ -43,13 +45,7 @@ void EmulatorTaskMain(void *unused)
 		vTaskDelay(1); // important to avoid task watchdog timeouts
 	}
 }
-/*
-void bk_setup(BkScreen* bkScreen)
-{
-	_bkScreen = bkScreen;
-	bk_reset();
-}
-*/
+
 int32_t bk_loop()
 {
 	pdp_regs* p = &pdp;
@@ -119,7 +115,7 @@ int32_t bk_loop()
 			p->regs[PC] &= 0177400;
 		}
 	}
-
+/*
 	// Keyboard input
 	int32_t scanCode = Ps2_GetScancode();
 	if (scanCode > 0)
@@ -140,7 +136,7 @@ int32_t bk_loop()
 			OnKey(scanCode, false);
 		}
 	}
-
+*/
 	if ((p->psw & 020) && (rtt == 0))
 	{ 
 		if (service((d_word) 014) != OK)
@@ -188,235 +184,33 @@ void bk_reset()
 	//ll_word(&pdp, 0177716, &pdp.regs[PC]);
 //	pdp.regs[PC] &= 0177400;
 
-	for (uint32_t* ram = (uint32_t*) RamBuffer;
-			ram < (uint32_t*) &RamBuffer[RAM_AVAILABLE]; ram++)
+	for (uint32_t* ram = (uint32_t*)Environment.GetPointer(0); ram < (uint32_t*)Environment.GetPointer(0x3FFC); ram++)
 	{
-		*ram = 0xFF00FF;
+		*ram = 0x00FF00FF;
 	}
 }
 
 extern "C" int ll_byte(pdp_regs* p, c_addr addr, d_byte* byte)
 {
-	if (addr >= (uint16_t) 0xFF80)
-	{
-		// I/O Ports
-
-		switch (addr)
-		{
-		case TTY_REG:
-			*byte = port0177660;
-			break;
-		case TTY_REG + 2:
-			*byte = port0177662;
-			port0177660 &= ~0x80;
-			break;
-		case TTY_REG + 4:
-			*byte = (uint8_t)port0177664;
-			break;
-		case TTY_REG + 5:
-			*byte = (uint8_t)port0177664 >> 8;
-			break;
-		case IO_REG:
-			*byte = (uint8_t)port0177716;
-			break;
-		case IO_REG + 1:
-			*byte = (uint8_t)port0177716 >> 8;
-			break;
-		default:
-			*byte = 0;
-			break;
-		}
-	}
-	else if (addr >= (uint16_t) 0xA000)
-	{
-		// ROM Basic
-		*byte = basic[addr - (uint16_t) 0xA000];
-	}
-	else if (addr >= (uint16_t) 0x8000)
-	{
-		// ROM Monitor
-		*byte = monitor[addr - (uint16_t) 0x8000];
-	}
-	else if (addr >= (uint16_t) 0x4000)
-	{
-		// Video RAM
-		*byte = _bkScreen->Settings->Pixels[addr - (uint16_t) 0x4000];
-	}
-	else
-	{
-		// RAM
-		*byte = RamBuffer[addr];
-	}
-
+	*byte = Environment.ReadByte(addr);
 	return OK;
 }
 
 extern "C" int ll_word(pdp_regs* p, c_addr addr, d_word* word)
 {
-	if (addr & 0x1)
-	{
-		int result;
-		uint8_t byte1;
-		if ((result = ll_byte(p, addr, &byte1)) != OK)
-		{
-			return result;
-		}
-
-		uint8_t byte2;
-		if ((result = ll_byte(p, addr + 1, &byte2)) != OK)
-		{
-			return result;
-		}
-
-		*word = (byte2 << 8) | byte1;
-
-		return OK;
-	}
-
-	if (addr >= (uint16_t) 0xFF80)
-	{
-		// I/O port
-
-		switch (addr)
-		{
-		case TTY_REG:
-			*word = (uint16_t)port0177660;
-			break;
-		case TTY_REG + 2:
-			*word = (uint16_t)port0177662;
-			port0177660 &= ~0x80;
-			break;
-		case TTY_REG + 4:
-			*word = port0177664;
-			break;
-		case IO_REG:
-			*word = port0177716;
-			break;
-		default:
-			*word = 0;
-			break;
-		}
-	}
-	else if (addr >= (uint16_t)0xA000)
-	{
-		// ROM Basic
-		*word = ((uint16_t*) basic)[(addr - (uint16_t)0xA000) >> 1];
-	}
-	else if (addr >= (uint16_t)0x8000)
-	{
-		// ROM Monitor
-		*word = ((uint16_t*) monitor)[(addr - (uint16_t)0x8000) >> 1];
-	}
-	else if (addr >= (uint16_t)0x4000)
-	{
-		// Video RAM
-		*word = ((uint16_t*) _bkScreen->Settings->Pixels)[(addr - (uint16_t)0x4000) >> 1];
-	}
-	else
-	{
-		// RAM
-		*word = ((uint16_t*)RamBuffer)[addr >> 1];
-	}
-
+	*word = Environment.ReadWord(addr);
 	return OK;
 }
 
 extern "C" int sl_byte(pdp_regs* p, c_addr addr, d_byte byte)
 {
-	if (addr >= (uint16_t) 0xFF80)
-	{
-		// I/O port
-
-		switch (addr)
-		{
-		case TTY_REG:
-			port0177660 = (port0177660 & ~0x40) | (byte & 0x40);
-			break;
-		case TTY_REG + 2:
-			port0177662 = (port0177662 & 0xFF00) | byte;
-			break;
-		case TTY_REG + 3:
-			port0177662 = (port0177662 & 0xFF) | (byte >> 8);
-			break;
-		case TTY_REG + 4:
-			port0177664 = (port0177664 & 0xFF00) | byte;
-			break;
-		case TTY_REG + 5:
-			port0177664 = (port0177664 & 0xFF) | (byte >> 8);
-			break;
-		default:
-			break;
-		}
-	}
-	else if (addr >= (uint16_t) 0xA000)
-	{
-		// Can't write to ROM
-	}
-	else if (addr >= (uint16_t) 0x4000)
-	{
-		// Video RAM
-		_bkScreen->Settings->Pixels[addr - (uint16_t) 0x4000] = byte;
-	}
-	else
-	{
-		// RAM
-		RamBuffer[addr] = byte;
-	}
-
+	Environment.WriteByte(addr, byte);
 	return OK;
 }
 
 extern "C" int sl_word(pdp_regs* p, c_addr addr, d_word word)
 {
-	if (addr & 0x1)
-	{
-		int result;
-		if ((result = sl_byte(p, addr, (uint8_t)word)) != OK)
-		{
-			return result;
-		}
-
-		if ((result = sl_byte(p, addr + 1, (uint8_t)(word >> 8))) != OK)
-		{
-			return result;
-		}
-
-		return ODD_ADDRESS;
-	}
-
-	if (addr >= (uint16_t)0xFF80)
-	{
-		// I/O port
-
-		switch (addr)
-		{
-		case TTY_REG:
-			port0177660 = (port0177660 & ~0x40) | (word & 0x40);
-			break;
-		case TTY_REG + 4:
-			port0177664 = (word & 01377);
-			break;
-		default:
-			break;
-		}
-	}
-	else if (addr >= (uint16_t)0xA000)
-	{
-		// Can't write to ROM
-	}
-	else if (addr >= (uint16_t)0x4000)
-	{
-		// Video RAM
-		((uint16_t*)_bkScreen->Settings->Pixels)[(addr - (uint16_t)0x4000) >> 1] = word;
-	}
-	else
-	{
-		// RAM
-		((uint16_t*)RamBuffer)[addr >> 1] = word;
-	}
-
-
-	return OK;
+	return Environment.WriteWord(addr, word);
 }
 
 extern "C" void q_reset()
