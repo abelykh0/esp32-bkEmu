@@ -17,6 +17,9 @@ public:
     uint8_t* ExtendedMemory;  // 0x02 - off, 0x00 - on
     uint8_t* Scroll;          
     uint8_t* VideoRam;
+    uint32_t* Palette512x256;
+    uint32_t* Palette256x256color;
+    uint32_t* Palette256x256bw;
 
     void Initialize(bkEnvironment* environment);
 
@@ -24,6 +27,8 @@ public:
     uint8_t IRAM_ATTR createRawPixel(uint8_t color);
 
 private:
+    void InitPalette(uint32_t* palette, uint8_t foreColor, uint8_t backColor);
+    void InitPalette(uint32_t* palette, uint8_t* colors);
 };
 
 #endif
