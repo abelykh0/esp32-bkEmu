@@ -2,14 +2,11 @@
 #define __BKSNAPSHOT_INCLUDED__
 
 #include <stdint.h>
-#include "fatfs.h"
+#include "FS.h"
 
-namespace bk
-{
+void FileSystemInitialize(fs::FS* fileSystem);
 
-bool LoadSnapshot(FIL* file);
-bool SaveSnapshot(FIL* file);
-
-}
+bool LoadSnapshot(const char* fileName);
+bool SaveSnapshot(const char* fileName);
 
 #endif

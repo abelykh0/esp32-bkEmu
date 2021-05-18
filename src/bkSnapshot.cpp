@@ -1,59 +1,93 @@
-/*
 
 #include "bkSnapshot.h"
+#include "settings.h"
+#include "stdint.h"
 #include "bkEmu.h"
+#include "bkEnvironment.h"
+#include "SD.h"
+#include "defines.h"
+
+static fs::FS* _fileSystem;
+
+extern bkEnvironment Environment;
+extern pdp_regs pdp;
 
 // First 2 bytes : start address
 // Next 2 bytes : length
 // Data follows
-
 struct FileHeader
 {
 	uint16_t Start;
 	uint16_t Size;
 } __attribute__((packed));
 
-bool bk::LoadSnapshot(FIL* file)
+static bool mount()
 {
+#ifdef SDCARD
+	return SD.begin(13, SPI, 20000000U, "/sd", 1);
+#else
+	return true;
+#endif
+}
 
+static void unmount()
+{
+#ifdef SDCARD
+	SD.end();
+#endif
+}
+
+static bool loadSnapshot(File file)
+{
 	FileHeader fileHeader;
-	UINT bytesRead;
-	uint8_t headerSize = sizeof(fileHeader);
-	FRESULT readResult = f_read(file, &fileHeader, headerSize, &bytesRead);
-	if (readResult != FR_OK || bytesRead != headerSize)
+	size_t headerSize = sizeof(fileHeader);
+	size_t bytesRead = file.read((uint8_t*)&fileHeader, headerSize);
+	if (bytesRead != headerSize)
 	{
 		return false;
 	}
 
-	FSIZE_t realSize = f_size(file);
+	size_t realSize = (size_t)file.size();
 	if (realSize != headerSize + fileHeader.Size
-		|| fileHeader.Start > RAM_AVAILABLE)
+		|| fileHeader.Start + fileHeader.Size > 0x4000)
 	{
 		return false;
 	}
 
-	int remainingBytes = fileHeader.Size;
-	uint8_t* buffer = &RamBuffer[fileHeader.Start];
-	do
+	int size = fileHeader.Size;
+	uint8_t* buffer = Environment.GetPointer(fileHeader.Start);
+	bytesRead = file.read(buffer, size);
+	if (bytesRead != size)
 	{
-		uint32_t bytesToRead = remainingBytes < FF_MIN_SS ? remainingBytes : FF_MIN_SS;
-		readResult = f_read(file, buffer, bytesToRead, &bytesRead);
-		if (readResult != FR_OK || bytesRead != bytesToRead)
-		{
-			return false;
-		}
-
-		remainingBytes -= bytesRead;
-		buffer += bytesRead;
-	} while (readResult == FR_OK && remainingBytes > 0);
+		return false;
+	}
 
 	pdp.regs[PC] = fileHeader.Start;
 
 	return true;
 }
 
-bool bk::SaveSnapshot(FIL* file)
+void FileSystemInitialize(fs::FS* fileSystem)
+{
+    _fileSystem = fileSystem;
+}
+
+bool LoadSnapshot(const char* fileName)
+{
+	if (mount())
+	{
+		File file = _fileSystem->open("/_Archive/Fish-Demo.bin", FILE_READ);
+		loadSnapshot(file);
+
+		file.close();
+
+		unmount();
+	}
+
+	return true;
+}
+
+bool SaveSnapshot(const char* fileName)
 {
 	return false;
 }
-*/

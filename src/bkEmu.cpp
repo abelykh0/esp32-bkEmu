@@ -23,6 +23,8 @@
 #include "monitor.h"
 #include "ps2Input.h"
 #include "defines.h"
+#include "bkSnapshot.h"
+#include "SD.h"
 
 pdp_regs pdp;
 extern "C" void timing(pdp_regs* p);
@@ -45,6 +47,18 @@ static void startKeyboard()
 
 void EmulatorTaskMain(void *unused)
 {
+#ifdef SDCARD
+    SPI.begin(14, 2, 12);
+    FileSystemInitialize(&SD);
+#else
+    if (!FFat.begin())
+    {
+        Serial.println("FFat Mount Failed");
+        return;
+    }
+    FileSystemInitialize(&FFat);
+#endif
+
 	Environment.Initialize();
 	Screen.Initialize(&Environment);
 
@@ -62,6 +76,10 @@ void EmulatorTaskMain(void *unused)
 		int32_t scanCode = bk_loop();
 		switch (scanCode)
 		{
+		case KEY_F3:
+			LoadSnapshot("");
+			break;
+		
 		case KEY_F7:
 			Screen.UseColorPalette = !Screen.UseColorPalette;
 			break;
