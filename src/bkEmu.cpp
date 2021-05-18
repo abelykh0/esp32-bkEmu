@@ -53,8 +53,6 @@ void EmulatorTaskMain(void *unused)
 
 	bk_reset();
 
-	memset(Screen.VideoRam, 0x0F, 0x4000);
-
 	// Loop
 	while (true)
 	{

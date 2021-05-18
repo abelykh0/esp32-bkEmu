@@ -1,11 +1,22 @@
 #include "bkEnvironment.h"
+#include "settings.h"
 #include "monitor.h"
 #include "basic.h"
 #include "defines.h"
 
+#define BEEPER_PIN 25
+
+// From arduino
+#define OUTPUT            0x02
+#define LOW               0x0
+#define HIGH              0x1
+extern "C" void pinMode(uint8_t pin, uint8_t mode);
+extern "C" void digitalWrite(uint8_t pin, uint8_t val);
+
 static uint8_t ram[0x4000];
 static uint8_t videoRam[0x4000];
 static uint8_t ports[0x80];
+
 
 void bkEnvironment::Initialize()
 {
@@ -14,6 +25,11 @@ void bkEnvironment::Initialize()
     this->_romMonitor = (uint8_t*)monitor;
     this->_romBasic = (uint8_t*)basic;
     this->_ports = ports;
+
+#ifdef BEEPER
+    pinMode(BEEPER_PIN, OUTPUT);
+    digitalWrite(BEEPER_PIN, LOW);
+#endif
 }
 
 uint8_t bkEnvironment::ReadByte(uint16_t addr)
@@ -87,6 +103,16 @@ void bkEnvironment::WriteByte(uint16_t addr, uint8_t data)
             // Can't write to ROM
             break;
         case 0xFF80 ... 0xFFFF:
+#ifdef BEEPER
+            if (addr == 0xFFCE)
+            {
+                uint8_t sound = (data & 0x40);
+                if ((this->_ports[addr - 0xFF80] & 0x40) != sound)
+                {
+                    digitalWrite(BEEPER_PIN, sound >> 6); 
+                }
+            }
+#endif
             this->_ports[addr - 0xFF80] = data;
             break;
     }
@@ -113,7 +139,8 @@ int bkEnvironment::WriteWord(uint16_t addr, uint16_t data)
             // Can't write to ROM
             break;
         case 0xFF80 ... 0xFFFF:
-            ((uint16_t*)this->_ports)[(addr - 0xFF80) >> 1] = data;
+            this->WriteByte(addr, (uint8_t)data);
+            this->WriteByte(addr + 1, (uint8_t)(data >> 8));
             break;
     }
 
