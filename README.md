@@ -2,7 +2,7 @@
 BK-0010 Emulator
 
 ## What it can do
-* Emulate BK-0010
+* Emulate [BK-0010](https://en.wikipedia.org/wiki/Electronika_BK)
 
 ## Third party software
 This project uses several libraries:
