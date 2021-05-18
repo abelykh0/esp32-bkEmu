@@ -17,7 +17,6 @@ static uint8_t ram[0x4000];
 static uint8_t videoRam[0x4000];
 static uint8_t ports[0x80];
 
-
 void bkEnvironment::Initialize()
 {
     this->_ram = ram;

@@ -5,9 +5,9 @@
 #define SDCARD
 #define BEEPER
 
-#define RESOLUTION VGA_512x512_58Hz
-#define SCREEN_WIDTH  64
-#define SCREEN_HEIGHT 32
+#define RESOLUTION VESA_768x576_60Hz
+#define SCREEN_WIDTH  96
+#define SCREEN_HEIGHT 288
 
 #define OSD_COLORS 0x2A10
 

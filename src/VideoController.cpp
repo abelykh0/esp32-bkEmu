@@ -1,6 +1,11 @@
 #include "VideoController.h"
 #include "fabutils.h"
 
+#define BK_WIDTH  64
+#define BK_HEIGHT 256
+#define BORDER_HEIGHT ((SCREEN_HEIGHT - BK_HEIGHT) / 2)
+#define BORDER_WIDTH ((SCREEN_WIDTH - BK_WIDTH) / 2)
+
 // 512x256
 #define BACK_COLOR 0x10
 #define FORE_COLOR 0x3F
@@ -99,9 +104,27 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
     }
 
     int y = scanLine / 2;
+    uint8_t borderPixel = controller->createRawPixel(BACK_COLOR);
+
+    // Border on top and bottom
+    if (y < BORDER_HEIGHT || y >= BORDER_HEIGHT + BK_HEIGHT)
+    {
+        memset(dest, borderPixel, SCREEN_WIDTH * 8);
+        return;
+    }
+
+    // Left border
+    memset(dest, borderPixel, BORDER_WIDTH);
+    dest += BORDER_WIDTH * 8;
+
+    y -= BORDER_HEIGHT;
+
+    // scroll
+    y = (uint8_t)(y + *controller->Scroll - 0330);    
+
     uint32_t* dest32 = (uint32_t*)dest;
-    uint32_t* lastDest = dest32 + (2 * SCREEN_WIDTH);
-    uint8_t* pixels = controller->VideoRam + (y * SCREEN_WIDTH);
+    uint32_t* lastDest = dest32 + (2 * BK_WIDTH);
+    uint8_t* pixels = controller->VideoRam + (y * BK_WIDTH);
     uint32_t* palette;
     if (*controller->ScreenMode == 0)
     {
@@ -121,4 +144,7 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
         dest32 += 2;
         pixels++;
     } while (dest32 < lastDest);
+    
+    // Right border
+    memset(dest32, borderPixel, BORDER_WIDTH);
 }

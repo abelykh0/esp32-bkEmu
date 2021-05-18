@@ -25,6 +25,7 @@
 #include "defines.h"
 
 pdp_regs pdp;
+extern "C" void timing(pdp_regs* p);
 flag_t bkmodel = 0;
 flag_t io_stop_happened;
 unsigned short last_branch;
@@ -70,17 +71,18 @@ int32_t bk_loop()
 	int rtt = 0; 
 	int32_t returnValue = 0;
 
+	uint32_t frames = Screen.Frames + 1;
 	//Uint32 last_screen_update = SDL_GetTicks();
 	//double timing_delta = ticks - SDL_GetTicks() * (TICK_RATE/1000.0);
 
-	for (int i = 0; i < 30000; i++)
+	while (Screen.Frames < frames)
 	{
 		result = ll_word(p, p->regs[PC], &p->ir);
 		p->regs[PC] += 2;
 		if (result == OK)
 		{
 			result = (itab[p->ir >> 6].func)(p);
-			//timing(p);
+			timing(p);
 		}
 
 		if (result != OK)
