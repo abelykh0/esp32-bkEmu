@@ -132,7 +132,7 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
     }
     else
     {
-        palette = controller->Palette256x256color;
+        palette = controller->UseColorPalette ? controller->Palette256x256color : controller->Palette256x256bw;
     }
 
     do

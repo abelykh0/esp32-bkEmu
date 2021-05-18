@@ -17,6 +17,7 @@ public:
     uint8_t* ExtendedMemory;  // 0x02 - off, 0x00 - on
     uint8_t* Scroll;          
     uint8_t* VideoRam;
+    bool UseColorPalette = true;
     uint32_t* Palette512x256;
     uint32_t* Palette256x256color;
     uint32_t* Palette256x256bw;

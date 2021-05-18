@@ -59,7 +59,16 @@ void EmulatorTaskMain(void *unused)
 	{
 		vTaskDelay(1); // important to avoid task watchdog timeouts
 
-		bk_loop();
+		int32_t scanCode = bk_loop();
+		switch (scanCode)
+		{
+		case KEY_F7:
+			Screen.UseColorPalette = !Screen.UseColorPalette;
+			break;
+		
+		default:
+			break;
+		}
 	}
 }
 
