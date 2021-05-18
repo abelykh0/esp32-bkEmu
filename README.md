@@ -1,5 +1,8 @@
-# stm32f407-bkEmu
+# esp32-bkEmu
 BK-0010 Emulator
+
+## Hardware
+[VGA32 v1.4 Board](http://www.lilygo.cn/prod_view.aspx?TypeId=50033&Id=1083)
 
 ## What it can do
 * Emulate [BK-0010](https://en.wikipedia.org/wiki/Electronika_BK)
