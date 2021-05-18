@@ -28,7 +28,7 @@ public:
     uint8_t IRAM_ATTR createRawPixel(uint8_t color);
 
 private:
-    void InitPalette(uint32_t* palette, uint8_t foreColor, uint8_t backColor);
+    void InitPalette(uint32_t* palette, uint8_t backColor, uint8_t foreColor);
     void InitPalette(uint32_t* palette, uint8_t* colors);
 };
 

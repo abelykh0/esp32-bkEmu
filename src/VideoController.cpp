@@ -45,14 +45,14 @@ void VideoController::Start(char const* modeline)
     this->setResolution(modeline);
 
     // Prepare palettes
-    this->InitPalette(this->Palette512x256, FORE_COLOR, BACK_COLOR);
+    this->InitPalette(this->Palette512x256, BW_00, BW_11);
     uint8_t colors[] = { COLOR_00, COLOR_01, COLOR_10, COLOR_11 };
     this->InitPalette(this->Palette256x256color, colors);
     uint8_t bw[] = { BW_00, BW_01, BW_10, BW_11 };
     this->InitPalette(this->Palette256x256bw, bw);
 }   
 
-void VideoController::InitPalette(uint32_t* palette, uint8_t foreColor, uint8_t backColor)
+void VideoController::InitPalette(uint32_t* palette, uint8_t backColor, uint8_t foreColor)
 {
 	for (uint8_t i = 0; i < 16; i++)
 	{
