@@ -80,6 +80,10 @@ void EmulatorTaskMain(void *unused)
 			LoadSnapshot("");
 			break;
 		
+		case KEY_F5:
+			bk_reset();
+			break;
+		
 		case KEY_F7:
 			Screen.UseColorPalette = !Screen.UseColorPalette;
 			break;
