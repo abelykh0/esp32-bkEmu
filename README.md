@@ -10,7 +10,7 @@ BK-0010 Emulator
 ## Third party software
 This project uses several libraries:
 * (GPL v3.0) Display video using VGA, process PS/2 keyboard, and sound output: https://github.com/fdivitto/FabGL
-* (unsure, MIT?) PDP-11 emulator: https://github.com/emestee/bk-emulator
+* (unsure, MIT?) PDP-11 emulator by Eric A. Edwards: https://github.com/emestee/bk-emulator
 
 ## Plans for the future / issues
 * Load file in .BIN format from SD card
