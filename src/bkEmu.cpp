@@ -68,6 +68,13 @@ void EmulatorTaskMain(void *unused)
 
 	bk_reset();
 
+	Screen.SetCursorPosition(10, 0);
+	Screen.Print("F3 - load file from SD card");
+	Screen.SetCursorPosition(10, 1);
+	Screen.Print("F5 - reset");
+	Screen.SetCursorPosition(50, 0);
+	Screen.Print("F7 - color / BW for 256 x 256 mode");
+
 	// Loop
 	while (true)
 	{
