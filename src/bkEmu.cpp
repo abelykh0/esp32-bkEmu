@@ -80,18 +80,18 @@ void EmulatorTaskMain(void *unused)
 	{
 		vTaskDelay(1); // important to avoid task watchdog timeouts
 
-		int32_t scanCode = bk_loop();
-		switch (scanCode)
+		fabgl::VirtualKey virtualKey = bk_loop();
+		switch (virtualKey)
 		{
-		case KEY_F3:
+		case fabgl::VirtualKey::VK_F3:
 			LoadSnapshot("");
 			break;
 		
-		case KEY_F5:
+		case fabgl::VirtualKey::VK_F5:
 			bk_reset();
 			break;
 		
-		case KEY_F7:
+		case fabgl::VirtualKey::VK_F7:
 			Screen.UseColorPalette = !Screen.UseColorPalette;
 			break;
 		
@@ -101,13 +101,13 @@ void EmulatorTaskMain(void *unused)
 	}
 }
 
-int32_t bk_loop()
+fabgl::VirtualKey bk_loop()
 {
 	pdp_regs* p = &pdp;
 	register int result; 
 	int result2 = OK; 
 	int rtt = 0; 
-	int32_t returnValue = 0;
+	fabgl::VirtualKey returnValue = fabgl::VirtualKey::VK_NONE;
 
 	uint32_t frames = Screen.Frames + 1;
 	//Uint32 last_screen_update = SDL_GetTicks();
@@ -175,24 +175,10 @@ int32_t bk_loop()
 		}
 
 		// Keyboard input
-		int32_t scanCode = Ps2_GetScancode();
-		if (scanCode > 0)
+		fabgl::VirtualKeyItem* virtualKeyItem = KeyboardGetNextVirtualKey();
+		if (!OnKey(virtualKeyItem) && virtualKeyItem != nullptr)
 		{
-			if ((scanCode & 0xFF00) == 0xF000)
-			{
-				// key up
-
-				scanCode = ((scanCode & 0xFF0000) >> 8 | (scanCode & 0xFF));
-				if (!OnKey(scanCode, true))
-				{
-					returnValue = scanCode;
-				}
-			}
-			else
-			{
-				// key down
-				OnKey(scanCode, false);
-			}
+			returnValue = virtualKeyItem->vk;
 		}
 
 		if ((p->psw & 020) && (rtt == 0))

@@ -2,7 +2,8 @@
 #define BKKEYBOARD_H
 
 #include <stdint.h>
+#include <fabgl.h>
 
-bool OnKey(uint32_t scanCode, bool isKeyUp);
+bool OnKey(fabgl::VirtualKeyItem* virtualKey);
 
 #endif  // DRAW4_H

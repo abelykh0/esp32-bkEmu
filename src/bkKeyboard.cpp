@@ -84,35 +84,36 @@ uint8_t convertSymbol(uint8_t symbol, bool returnItself)
 	return returnItself ? symbol : '\0';
 }
 
-bool OnKey(uint32_t scanCode, bool isKeyUp)
+bool OnKey(fabgl::VirtualKeyItem* virtualKey)
 {
-	if (isKeyUp)
+	if (virtualKey == nullptr || !virtualKey->down)
 	{
+		Environment.WriteByte(0177716, Environment.ReadByte(0177716) | 0x80);
 		return false;
 	}
-
+	
 	uint8_t symbol = '\0';
 
 	if (ModifierKeyState & (ModifierKeys::LeftAlt | ModifierKeys::RightAlt))
 	{
 		// АР2
 
-		switch (scanCode)
+		switch (virtualKey->vk)
 		{
-		case KEY_COMMA:
+		case VirtualKey::VK_COMMA:
 			// Inverse on / off
 			symbol = 156;
 			break;
-		case KEY_DIV:
+		case VirtualKey::VK_SLASH:
 			// Underscore on / off
 			symbol = 159;
 			break;
-		case KEY_ESC: // СБР
+		case VirtualKey::VK_ESCAPE: // СБР
 			// Extended memory on / off
 			symbol = 140;
 			break;
 		default:
-			symbol = Ps2_ConvertScancode(scanCode);
+			symbol = virtualKey->ASCII;
 			symbol = convertSymbol(symbol, false);
 			if (symbol != '\0')
 			{
@@ -123,49 +124,50 @@ bool OnKey(uint32_t scanCode, bool isKeyUp)
 	}
 	else
 	{
-		switch (scanCode)
+		switch (virtualKey->vk)
 		{
-		case KEY_INSERT: // |=>
+		case VirtualKey::VK_INSERT: // |=>
 			symbol = 23;
 			break;
-		case KEY_ESC: // СБР
+		case VirtualKey::VK_ESCAPE: // СБР
 			symbol = 12;
 			break;
-		case KEY_LEFTARROW:
+		case VirtualKey::VK_LEFT:
 			symbol = 0x08;
 			break;
-		case KEY_RIGHTARROW:
+		case VirtualKey::VK_RIGHT:
 			symbol = 0x19;
 			break;
-		case KEY_UPARROW:
+		case VirtualKey::VK_UP:
 			symbol = 0x1A;
 			break;
-		case KEY_DOWNARROW:
+		case VirtualKey::VK_DOWN:
 			symbol = 0x1B;
 			break;
-		case KEY_BACKSPACE:
+		case VirtualKey::VK_BACKSPACE:
 			symbol = 0x18;
 			break;
-		case KEY_TAB:
+		case VirtualKey::VK_TAB:
 			symbol = 20;
 			break;
-		case KEY_ENTER:
-		case KEY_KP_ENTER:
+		case VirtualKey::VK_RETURN:
+		case VirtualKey::VK_KP_ENTER:
 			symbol = 0x0A;
 			break;
-		case KEY_LEFTCONTROL: // РУС
-		case KEY_L_GUI:
+		case VirtualKey::VK_LCTRL: // РУС
+		case VirtualKey::VK_LGUI:
 			symbol = 0x0E;
 			break;
-		case KEY_RIGHTCONTROL: // ЛАТ
-		case KEY_R_GUI:
+		case VirtualKey::VK_RCTRL: // ЛАТ
+		case VirtualKey::VK_RGUI:
 			symbol = 0x0F;
 			break;
-		case KEY_ALT: // АР2
+		case VirtualKey::VK_RALT: // АР2
+		case VirtualKey::VK_LALT:
 			symbol = 0x0F;
 			break;
 		default:
-			symbol = Ps2_ConvertScancode(scanCode);
+			symbol = virtualKey->ASCII;
 			if (Environment.ReadByte(0x0023) == 0x80)
 			{
 				// РУС
@@ -182,15 +184,7 @@ bool OnKey(uint32_t scanCode, bool isKeyUp)
 	}
 
 	Environment.WriteByte(0177660, Environment.ReadByte(0177660) | 0x80);
-	Environment.WriteByte(0177716, Environment.ReadByte(0177716) | 0x04);
-	if (isKeyUp)
-	{
-		Environment.WriteByte(0177716, Environment.ReadByte(0177716) & ~0x80);
-	}
-	else
-	{
-		Environment.WriteByte(0177716, Environment.ReadByte(0177716) | 0x80);
-	}
+	Environment.WriteByte(0177716, Environment.ReadByte(0177716) & ~0x80);
 	Environment.WriteByte(0177662, symbol & 0x7F);
 
 	ev_register(TTY_PRI, tty_finish, 0, symbol);

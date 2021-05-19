@@ -149,8 +149,7 @@ enum ModifierKeys
 
 extern uint8_t ModifierKeyState;
 
-int32_t Ps2_GetScancode();
-char Ps2_ConvertScancode(int32_t scanCode);
+fabgl::VirtualKeyItem* KeyboardGetNextVirtualKey();
 
 #ifdef __cplusplus
 }

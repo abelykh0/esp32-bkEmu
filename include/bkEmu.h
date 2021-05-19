@@ -2,8 +2,9 @@
 #define __BKEMU_H
 
 #include "stdint.h"
+#include "fabgl.h"
 
-int32_t bk_loop();
+fabgl::VirtualKey bk_loop();
 void bk_reset();
 
 #endif
