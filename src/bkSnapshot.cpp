@@ -62,6 +62,7 @@ static bool loadSnapshot(File file)
 		return false;
 	}
 
+	pdp.regs[SP] = 01000;
 	pdp.regs[PC] = fileHeader.Start;
 
 	return true;
