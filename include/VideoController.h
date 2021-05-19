@@ -21,6 +21,9 @@ public:
     uint32_t* Palette512x256;
     uint32_t* Palette256x256color;
     uint32_t* Palette256x256bw;
+    uint32_t* PaletteText;
+
+    uint8_t* BottomCharacters;
 
     void Initialize(bkEnvironment* environment);
 
