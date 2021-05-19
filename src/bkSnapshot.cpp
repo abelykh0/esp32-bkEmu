@@ -76,7 +76,7 @@ bool LoadSnapshot(const char* fileName)
 {
 	if (mount())
 	{
-		File file = _fileSystem->open("/_Archive/Fish-Demo.bin", FILE_READ);
+		File file = _fileSystem->open("/_Archive/Xonix.bin", FILE_READ);
 		loadSnapshot(file);
 
 		file.close();

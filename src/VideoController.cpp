@@ -109,14 +109,13 @@ void VideoController::Print(const char* str)
 	this->print((char*)str);
 }
 
-
 void VideoController::printChar(uint16_t x, uint16_t y, uint16_t ch)
 {
 	VideoController::printChar(x, y, ch, 0xFF, 0xFF);
 }
 void VideoController::printChar(uint16_t x, uint16_t y, uint16_t ch, uint8_t foreColor, uint8_t backColor)
 {
-	if (x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT)
+	if (x >= SCREEN_WIDTH || y >= TEXT_HEIGHT)
 	{
 		// Invalid
 		return;
@@ -154,7 +153,7 @@ void VideoController::cursorNext()
     }
     else
     {
-        if (y < SCREEN_HEIGHT - 1)
+        if (y < TEXT_HEIGHT - 1)
         {
             x = 0;
             y++;
@@ -177,7 +176,6 @@ void VideoController::SetCursorPosition(uint8_t x, uint8_t y)
 		this->cursor_y = TEXT_HEIGHT - 1;
 	}
 }
-
 
 uint8_t IRAM_ATTR VideoController::createRawPixel(uint8_t color)
 {
