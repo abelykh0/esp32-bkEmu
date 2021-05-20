@@ -4,9 +4,7 @@
 #include <stdint.h>
 #include "FS.h"
 
-void FileSystemInitialize(fs::FS* fileSystem);
-
-bool LoadSnapshot(const char* fileName);
-bool SaveSnapshot(const char* fileName);
+bool LoadSnapshot(File file);
+//bool SaveSnapshot(const char* fileName);
 
 #endif

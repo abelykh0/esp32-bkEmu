@@ -14,6 +14,8 @@ class VideoController : public VGADirectController
 public:
     volatile uint32_t Frames = 0;
 
+    uint8_t _mode = 0; // 0 - BK, 1 - text
+
     // BK Mode
     uint8_t* ScreenMode;      // 0 - 512x256, FF - 256x256
     uint8_t* ExtendedMemory;  // 0x02 - off, 0x00 - on

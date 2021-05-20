@@ -37,7 +37,7 @@ static void unmount()
 #endif
 }
 
-static bool loadSnapshot(File file)
+bool LoadSnapshot(File file)
 {
 	FileHeader fileHeader;
 	size_t headerSize = sizeof(fileHeader);
@@ -64,26 +64,6 @@ static bool loadSnapshot(File file)
 
 	pdp.regs[SP] = 01000;
 	pdp.regs[PC] = fileHeader.Start;
-
-	return true;
-}
-
-void FileSystemInitialize(fs::FS* fileSystem)
-{
-    _fileSystem = fileSystem;
-}
-
-bool LoadSnapshot(const char* fileName)
-{
-	if (mount())
-	{
-		File file = _fileSystem->open("/_Archive/Xonix.bin", FILE_READ);
-		loadSnapshot(file);
-
-		file.close();
-
-		unmount();
-	}
 
 	return true;
 }

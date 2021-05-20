@@ -228,13 +228,10 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
     scanLine -= 16;
     int y = scanLine / 2;
 
-    if (scanLine < BORDER_HEIGHT * 2
+    if (controller->_mode == 1 || scanLine < BORDER_HEIGHT * 2
         || scanLine >= (BORDER_HEIGHT + BK_HEIGHT) * 2)
     {
         // Text mode
-
-        //memset(dest, borderPixel, SCREEN_WIDTH * 8);
-        //return;
 
         int fontRow = y % FONT_HEIGHT;
         y /= FONT_HEIGHT;

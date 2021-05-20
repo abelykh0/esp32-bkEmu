@@ -26,6 +26,7 @@
 #include "bkSnapshot.h"
 #include "SD.h"
 #include "ScreenArea.h"
+#include "FileSystem.h"
 
 pdp_regs pdp;
 extern "C" void timing(pdp_regs* p);
@@ -36,7 +37,8 @@ unsigned short last_branch;
 const int TICK_RATE = 3000000; // CPU clock speed
 
 static VideoController Screen;
-ScreenArea BottomText(&Screen, 0, TEXT_WIDTH, TEXT_HEIGHT - 2, 2);
+static ScreenArea BottomText(&Screen, 0, TEXT_WIDTH, TEXT_HEIGHT - 2, 2);
+ScreenArea DebugScreen(&Screen, 0, TEXT_WIDTH, 0, TEXT_HEIGHT - 2);
 bkEnvironment Environment;
 static fabgl::PS2Controller* InputController;
 
@@ -45,6 +47,22 @@ static void startKeyboard()
 	InputController = new fabgl::PS2Controller();
 	InputController->begin(PS2Preset::KeyboardPort0);
 	Ps2_Initialize(InputController);
+}
+
+static bool pausedLoop()
+{
+	if (Screen._mode == 0)
+	{
+		return false;
+	}
+
+	if (loadSnapshotLoop())
+	{
+		return true;
+	}
+
+	Screen._mode = 0;
+	return false;
 }
 
 void EmulatorTaskMain(void *unused)
@@ -82,11 +100,17 @@ void EmulatorTaskMain(void *unused)
 	{
 		vTaskDelay(1); // important to avoid task watchdog timeouts
 
+		if (pausedLoop())
+		{
+			continue;
+		}
+
 		fabgl::VirtualKey virtualKey = bk_loop();
 		switch (virtualKey)
 		{
 		case fabgl::VirtualKey::VK_F3:
-			LoadSnapshot("");
+			Screen._mode = 1;
+			loadSnapshotSetup("/");
 			break;
 		
 		case fabgl::VirtualKey::VK_F5:
