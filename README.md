@@ -14,6 +14,6 @@ This project uses several libraries:
 * (unsure, MIT?) PDP-11 emulator by Eric A. Edwards: https://github.com/emestee/bk-emulator
 
 ## Plans for the future / issues
- Save snapshot
+* Save snapshot
 * Measure emulation speed and see if it needs a slowdown
 * Sound
