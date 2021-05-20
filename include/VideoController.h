@@ -7,13 +7,15 @@
 #include "Settings.h"
 #include "bkEnvironment.h"
 
-class VideoController : public fabgl::VGADirectController
+using namespace fabgl;
+
+class VideoController : public VGADirectController
 {
 public:
     volatile uint32_t Frames = 0;
 
+    // BK Mode
     uint8_t* ScreenMode;      // 0 - 512x256, FF - 256x256
-    uint8_t* ScreenInversion; // 0 - off, FF - on
     uint8_t* ExtendedMemory;  // 0x02 - off, 0x00 - on
     uint8_t* Scroll;          
     uint8_t* VideoRam;
@@ -22,11 +24,14 @@ public:
     uint32_t* Palette256x256color;
     uint32_t* Palette256x256bw;
 
-    // Text mode (bottom)
-    uint32_t* PaletteText;
+    // Text mode
     uint8_t cursor_x = 0;
     uint8_t cursor_y = 0;
-    uint8_t* Characters;
+    uint8_t Characters[TEXT_WIDTH * TEXT_HEIGHT];
+    uint32_t* _normalAttribute;
+    uint32_t* _inversedAttribute;
+    uint32_t** Attributes;
+    void SetAttribute(uint8_t x, uint8_t y, uint8_t foreColor, uint8_t backColor);
 
     void Initialize(bkEnvironment* environment);
     void Start(char const* modeline);

@@ -25,6 +25,7 @@
 #include "defines.h"
 #include "bkSnapshot.h"
 #include "SD.h"
+#include "ScreenArea.h"
 
 pdp_regs pdp;
 extern "C" void timing(pdp_regs* p);
@@ -35,6 +36,7 @@ unsigned short last_branch;
 const int TICK_RATE = 3000000; // CPU clock speed
 
 static VideoController Screen;
+ScreenArea BottomText(&Screen, 0, TEXT_WIDTH, TEXT_HEIGHT - 2, 2);
 bkEnvironment Environment;
 static fabgl::PS2Controller* InputController;
 
@@ -68,12 +70,12 @@ void EmulatorTaskMain(void *unused)
 
 	bk_reset();
 
-	Screen.SetCursorPosition(10, 0);
-	Screen.Print("F3 - load file from SD card");
-	Screen.SetCursorPosition(10, 1);
-	Screen.Print("F5 - reset");
-	Screen.SetCursorPosition(50, 0);
-	Screen.Print("F7 - color / BW for 256 x 256 mode");
+	BottomText.SetCursorPosition(0, 0);
+	BottomText.Print("F3 - Load file from SD card");
+	BottomText.SetCursorPosition(0, 1);
+	BottomText.Print("F5 - Reset");
+	BottomText.SetCursorPosition(32, 0);
+	BottomText.Print("F7 - Color / BW for 256x256 mode");
 
 	// Loop
 	while (true)
