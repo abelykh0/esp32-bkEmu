@@ -30,8 +30,9 @@ static FileName* _fileNames = (FileName*)_buffer16K_2;
 static int16_t _selectedFile = 0;
 static int16_t _fileCount;
 static bool _loadingSnapshot = false;
-static bool _savingSnapshot = false;
-static char* _snapshotName = ((char*)_buffer16K_1) + MAX_LFN;
+static bool _filesLoaded = false;
+//static bool _savingSnapshot = false;
+//static char* _snapshotName = ((char*)_buffer16K_1) + MAX_LFN;
 
 static fs::FS* _fileSystem;
 static const char* _rootFolder;
@@ -178,84 +179,91 @@ bool loadSnapshotSetup(const char* path)
     _rootFolder = path;
     _rootFolderLength = strlen(path);
 
-	//saveState();
-
-	//DebugScreen.SetPrintAttribute(0x3F10); // white on blue
-	//DebugScreen.Clear();
-
-	//showTitle("Loading files, please wait...");
-
-	FRESULT fr = mount();
-	if (fr != FR_OK)
-	{
-		return false;
-	}
-
-	uint8_t maxFileCount = (DEBUG_ROWS - 1) * FILE_COLUMNS;
-	_fileCount = 0;
 	bool result = true;
-
-    File root = _fileSystem->open(path);
-	if (root)
+	if (!_filesLoaded)
 	{
-        int fileIndex = 0;
-		while (fileIndex < maxFileCount)
+		//saveState();
+
+		//DebugScreen.SetPrintAttribute(0x3F10); // white on blue
+		DebugScreen.Clear();
+		//DebugScreen.PrintAlignRight
+
+		//showTitle("Loading files, please wait...");
+
+		FRESULT fr = mount();
+		if (fr != FR_OK)
 		{
-			File file = root.openNextFile();
-			if (!file)
+			return false;
+		}
+
+		uint8_t maxFileCount = (DEBUG_ROWS - 1) * FILE_COLUMNS;
+		_fileCount = 0;
+
+		File root = _fileSystem->open(path);
+		if (root)
+		{
+			int fileIndex = 0;
+			while (fileIndex < maxFileCount)
 			{
-				result = _fileCount > 0;
-				break;
+				File file = root.openNextFile();
+				if (!file)
+				{
+					result = _fileCount > 0;
+					break;
+				}
+
+				if (file.isDirectory())
+				{
+					continue;
+				}
+
+				// *.bin
+				if (strncmp(FileExtension((TCHAR*)file.name()), ".bin", 4) != 0)
+				{
+					continue;
+				}
+
+				strncpy(_fileNames[fileIndex], file.name() + _rootFolderLength, MAX_LFN + 1);
+				_fileCount++;
+				fileIndex++;
+
+				vTaskDelay(1); // important to avoid task watchdog timeouts
+			}
+		}
+		else
+		{
+			result = false;
+		}
+
+		// Sort files alphabetically
+		if (_fileCount > 0)
+		{
+			qsort(_fileNames, _fileCount, MAX_LFN + 1, fileCompare);
+			Serial.printf("file count=%d\r\n", _fileCount);
+
+			for (int y = 1; y < DEBUG_ROWS; y++)
+			{
+				DebugScreen.PrintAt(FILE_COLUMNWIDTH, y, "\x97"); // │
+				DebugScreen.PrintAt(FILE_COLUMNWIDTH * 2 + 1, y, "\x97"); // │
 			}
 
-            if (file.isDirectory())
-            {
-                continue;
-            }
+			uint8_t x, y;
+			for (int fileIndex = 0; fileIndex < _fileCount; fileIndex++)
+			{
+				GetFileCoord(fileIndex, &x, &y);
+				DebugScreen.PrintAt(x, y, TruncateFileName(_fileNames[fileIndex]));
+			}
 
-            // *.bin
-            if (strncmp(FileExtension((TCHAR*)file.name()), ".bin", 4) != 0)
-            {
-                continue;
-            }
-
-			strncpy(_fileNames[fileIndex], file.name() + _rootFolderLength, MAX_LFN + 1);
-			_fileCount++;
-            fileIndex++;
+			SetSelection(_selectedFile);	
 		}
+
+		// Unmount file system
+		unmount();
 	}
-	else
-	{
-		result = false;
-	}
-
-	// Sort files alphabetically
-	if (_fileCount > 0)
-	{
-		qsort(_fileNames, _fileCount, MAX_LFN + 1, fileCompare);
-		Serial.printf("file count=%d\r\n", _fileCount);
-
-        for (int y = 1; y < DEBUG_ROWS; y++)
-        {
-            DebugScreen.PrintAt(FILE_COLUMNWIDTH, y, "\x97"); // │
-            DebugScreen.PrintAt(FILE_COLUMNWIDTH * 2 + 1, y, "\x97"); // │
-        }
-
-        uint8_t x, y;
-        for (int fileIndex = 0; fileIndex < _fileCount; fileIndex++)
-        {
-            GetFileCoord(fileIndex, &x, &y);
-            DebugScreen.PrintAt(x, y, TruncateFileName(_fileNames[fileIndex]));
-        }
-
-        SetSelection(_selectedFile);	
-    }
-
-	// Unmount file system
-	unmount();
 
 	if (result)
 	{
+		_filesLoaded = true;
 		_loadingSnapshot = true;
 	}
 
@@ -318,6 +326,12 @@ bool loadSnapshotLoop()
 
 	case VirtualKey::VK_ESCAPE:
 		_loadingSnapshot = false;
+		//restoreState();
+		return false;
+
+	case VirtualKey::VK_F3:
+		_filesLoaded = false;
+		loadSnapshotSetup(_rootFolder);
 		//restoreState();
 		return false;
 
