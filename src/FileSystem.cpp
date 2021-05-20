@@ -15,7 +15,7 @@ using namespace fabgl;
 #define DEBUG_COLUMNS 64
 #define DEBUG_ROWS 26
 #define FILE_COLUMNS 3
-#define FILE_COLUMNWIDTH (DEBUG_COLUMNS / FILE_COLUMNS)
+#define FILE_COLUMNWIDTH 20
 #define MAX_LFN 90
 
 static uint8_t _buffer16K_1[0x4000];
@@ -56,7 +56,7 @@ static void unmount()
 
 static void GetFileCoord(uint16_t fileIndex, uint8_t* x, uint8_t* y)
 {
-	*x = fileIndex / (DEBUG_ROWS - 1) * (FILE_COLUMNWIDTH + 1);
+	*x = 1 + fileIndex / (DEBUG_ROWS - 1) * (FILE_COLUMNWIDTH + 1);
 	*y = 1 + fileIndex % (DEBUG_ROWS - 1);
 }
 
@@ -240,21 +240,6 @@ bool loadSnapshotSetup(const char* path)
 		{
 			qsort(_fileNames, _fileCount, MAX_LFN + 1, fileCompare);
 			Serial.printf("file count=%d\r\n", _fileCount);
-
-			for (int y = 1; y < DEBUG_ROWS; y++)
-			{
-				DebugScreen.PrintAt(FILE_COLUMNWIDTH, y, "\x97"); // │
-				DebugScreen.PrintAt(FILE_COLUMNWIDTH * 2 + 1, y, "\x97"); // │
-			}
-
-			uint8_t x, y;
-			for (int fileIndex = 0; fileIndex < _fileCount; fileIndex++)
-			{
-				GetFileCoord(fileIndex, &x, &y);
-				DebugScreen.PrintAt(x, y, TruncateFileName(_fileNames[fileIndex]));
-			}
-
-			SetSelection(_selectedFile);	
 		}
 
 		// Unmount file system
@@ -263,6 +248,23 @@ bool loadSnapshotSetup(const char* path)
 
 	if (result)
 	{
+		for (int y = 1; y < DEBUG_ROWS; y++)
+		{
+			DebugScreen.PrintAt(0, y, "\x97"); // │
+			DebugScreen.PrintAt(FILE_COLUMNWIDTH + 1, y, "\x97"); // │
+			DebugScreen.PrintAt(FILE_COLUMNWIDTH * 2 + 2, y, "\x97"); // │
+			DebugScreen.PrintAt(DEBUG_COLUMNS - 1, y, "\x97"); // │
+		}
+
+		uint8_t x, y;
+		for (int fileIndex = 0; fileIndex < _fileCount; fileIndex++)
+		{
+			GetFileCoord(fileIndex, &x, &y);
+			DebugScreen.PrintAt(x, y, TruncateFileName(_fileNames[fileIndex]));
+		}
+
+		SetSelection(_selectedFile);	
+
 		_filesLoaded = true;
 		_loadingSnapshot = true;
 	}

@@ -62,6 +62,7 @@ static bool pausedLoop()
 	}
 
 	Screen._mode = 0;
+	DebugScreen.Clear();
 	return false;
 }
 
