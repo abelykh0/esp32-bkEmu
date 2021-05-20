@@ -6,6 +6,7 @@ BK-0010 Emulator
 
 ## What it can do
 * Emulate [BK-0010](https://en.wikipedia.org/wiki/Electronika_BK)
+* Load file in .BIN format from SD card (not all files are working)
 
 ## Third party software
 This project uses several libraries:
@@ -13,7 +14,6 @@ This project uses several libraries:
 * (unsure, MIT?) PDP-11 emulator by Eric A. Edwards: https://github.com/emestee/bk-emulator
 
 ## Plans for the future / issues
-* Load file in .BIN format from SD card
-* Save snapshot
+ Save snapshot
 * Measure emulation speed and see if it needs a slowdown
 * Sound
