@@ -229,7 +229,7 @@ void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine)
     int y = scanLine / 2;
 
     if (controller->_mode == 1 || scanLine < BORDER_HEIGHT * 2
-        || scanLine >= (BORDER_HEIGHT + BK_HEIGHT) * 2)
+        || scanLine >= (BORDER_HEIGHT + ((((*controller->ExtendedMemory) & 0x02) != 0) ? BK_HEIGHT : 64)) * 2)
     {
         // Text mode
 
