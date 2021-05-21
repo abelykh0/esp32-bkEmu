@@ -15,5 +15,5 @@ This project uses several libraries:
 
 ## Plans for the future / issues
 * Save snapshot
-* Measure emulation speed and see if it needs a slowdown
-* Sound
+* Too fast, needs a slowdown
+* Covox
