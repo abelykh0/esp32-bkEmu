@@ -174,7 +174,7 @@ bool OnKey(fabgl::VirtualKeyItem* virtualKey)
 			symbol = convertSymbol(symbol, false);
 			if (symbol != '\0')
 			{
-				symbol += 89;
+				symbol += 96;
 			}
 			break;
 		}
