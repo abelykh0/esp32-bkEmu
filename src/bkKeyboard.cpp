@@ -49,12 +49,61 @@ uint8_t convertSymbol(uint8_t symbol, bool returnItself)
 		return keyMap2[symbol - 'a'];
 	}
 
+	bool isCapsLock = KeyboardIsCapsLockOn();
+	if (isCapsLock)
+	{
+		switch (symbol)
+		{
+		case '"': // Э
+			symbol = '\'';
+			break;
+		case '\'': // э
+			symbol = '"';
+			break;
+		case '>': // Ю
+			symbol = '.';
+			break;
+		case '.': // ю
+			symbol = '>';
+			break;
+		case '{': // Х
+			symbol = '[';
+			break;
+		case '[': // х
+			symbol = '{'; 
+			break;
+		case ':': // Ж
+			symbol = ';';
+			break;
+		case ';': // ж
+			symbol = ':';
+			break;
+		case '<': // Б
+			symbol = ',';
+			break;
+		case ',': // б
+			symbol = '<';
+			break;
+		case '}': // Ъ
+			symbol = ']';
+			break;
+		case ']': // ъ
+			symbol = '}';
+			break;
+		}
+	}
+
 	switch (symbol)
 	{
 	case '@':
 		return '"';
 	case '^':
 		return ':';
+	case '?':
+		return ',';
+	case '/':
+		return '.';
+
 	case '"': // Э
 		return '|';
 	case '\'': // э
@@ -75,10 +124,10 @@ uint8_t convertSymbol(uint8_t symbol, bool returnItself)
 		return 'b';
 	case ',': // б
 		return 'B';
-	case '?':
-		return ',';
-	case '/':
-		return '.';
+	case '}': // Ъ
+		return '\x7F';
+	case ']': // ъ
+		return '_';
 	}
 
 	return returnItself ? symbol : '\0';

@@ -151,6 +151,7 @@ extern uint8_t ModifierKeyState;
 extern uint8_t PrevModifierKeyState;
 
 fabgl::VirtualKeyItem* KeyboardGetNextVirtualKey();
+bool KeyboardIsCapsLockOn();
 
 #ifdef __cplusplus
 }

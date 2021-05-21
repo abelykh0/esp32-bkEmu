@@ -124,3 +124,13 @@ VirtualKeyItem* KeyboardGetNextVirtualKey()
 	
 	return &_virtualKeyItem;
 }
+
+bool KeyboardIsCapsLockOn()
+{
+    bool numLock;
+    bool capsLock;
+    bool scrollLock;
+    _keyboard->getLEDs(&numLock, &capsLock, &scrollLock);
+
+    return capsLock;
+}
