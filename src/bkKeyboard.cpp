@@ -138,7 +138,7 @@ bool OnKey(fabgl::VirtualKeyItem* virtualKey)
 	if (virtualKey == nullptr || !virtualKey->down)
 	{
 		Environment.WriteByte(0177716, Environment.ReadByte(0177716) | 0x80);
-		return false;
+		return true;
 	}
 	
 	uint8_t symbol = '\0';
