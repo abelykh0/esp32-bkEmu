@@ -30,7 +30,6 @@ static FileName* _fileNames = (FileName*)_buffer16K_2;
 static int16_t _selectedFile = 0;
 static int16_t _fileCount;
 static bool _loadingSnapshot = false;
-static bool _filesLoaded = false;
 //static bool _savingSnapshot = false;
 //static char* _snapshotName = ((char*)_buffer16K_1) + MAX_LFN;
 
@@ -180,70 +179,57 @@ bool loadSnapshotSetup(const char* path)
     _rootFolderLength = strlen(path);
 
 	bool result = true;
-	if (!_filesLoaded)
+	//saveState();
+
+	//DebugScreen.SetPrintAttribute(0x3F10); // white on blue
+	DebugScreen.Clear();
+	//DebugScreen.PrintAlignRight
+
+	//showTitle("Loading files, please wait...");
+
+	FRESULT fr = mount();
+	if (fr != FR_OK)
 	{
-		//saveState();
+		return false;
+	}
 
-		//DebugScreen.SetPrintAttribute(0x3F10); // white on blue
-		DebugScreen.Clear();
-		//DebugScreen.PrintAlignRight
+	uint8_t maxFileCount = (DEBUG_ROWS - 1) * FILE_COLUMNS;
+	_fileCount = 0;
 
-		//showTitle("Loading files, please wait...");
-
-		FRESULT fr = mount();
-		if (fr != FR_OK)
+	FF_DIR folder;
+	FILINFO fileInfo;
+	fr = f_opendir(&folder, (const TCHAR*) "/");
+	if (fr == FR_OK)
+	{
+		int fileIndex = 0;
+		while (fileIndex < maxFileCount)
 		{
-			return false;
-		}
-
-		uint8_t maxFileCount = (DEBUG_ROWS - 1) * FILE_COLUMNS;
-		_fileCount = 0;
-
-		File root = _fileSystem->open(path);
-		if (root)
-		{
-			int fileIndex = 0;
-			while (fileIndex < maxFileCount)
+			fr = f_readdir(&folder, &fileInfo);
+			if (fr != FR_OK || fileInfo.fname[0] == 0)
 			{
-				File file = root.openNextFile();
-				if (!file)
-				{
-					result = _fileCount > 0;
-					break;
-				}
-
-				if (file.isDirectory())
-				{
-					continue;
-				}
-
-				// *.bin
-				if (strncmp(FileExtension((TCHAR*)file.name()), ".bin", 4) != 0)
-				{
-					continue;
-				}
-
-				strncpy(_fileNames[fileIndex], file.name() + _rootFolderLength, MAX_LFN + 1);
-				_fileCount++;
-				fileIndex++;
-
-				vTaskDelay(1); // important to avoid task watchdog timeouts
+				result = _fileCount > 0;
+				break;
 			}
-		}
-		else
-		{
-			result = false;
-		}
 
-		// Sort files alphabetically
-		if (_fileCount > 0)
-		{
-			qsort(_fileNames, _fileCount, MAX_LFN + 1, fileCompare);
-			Serial.printf("file count=%d\r\n", _fileCount);
-		}
+			if (fileInfo.fattrib & AM_DIR)
+			{
+				continue;
+			}
 
-		// Unmount file system
-		unmount();
+			// *.bin
+			if (strncmp(FileExtension((TCHAR*)fileInfo.fname), ".bin", 4) != 0)
+			{
+				continue;
+			}
+
+			strncpy(_fileNames[fileIndex], fileInfo.fname, MAX_LFN + 1);
+			_fileCount++;
+			fileIndex++;
+		}
+	}
+	else
+	{
+		result = false;
 	}
 
 	if (result)
@@ -265,7 +251,6 @@ bool loadSnapshotSetup(const char* path)
 
 		SetSelection(_selectedFile);	
 
-		_filesLoaded = true;
 		_loadingSnapshot = true;
 	}
 
@@ -328,12 +313,6 @@ bool loadSnapshotLoop()
 
 	case VirtualKey::VK_ESCAPE:
 		_loadingSnapshot = false;
-		//restoreState();
-		return false;
-
-	case VirtualKey::VK_F3:
-		_filesLoaded = false;
-		loadSnapshotSetup(_rootFolder);
 		//restoreState();
 		return false;
 
