@@ -7,6 +7,7 @@ BK-0010 Emulator
 ## What it can do
 * Emulate [BK-0010](https://en.wikipedia.org/wiki/Electronika_BK)
 * Load file in .BIN format from SD card (not all files are working)
+* Beeper sound
 
 ## Third party software
 This project uses several libraries:
