@@ -51,6 +51,10 @@ uint8_t convertSymbol(uint8_t symbol, bool returnItself)
 
 	switch (symbol)
 	{
+	case '@':
+		return '"';
+	case '^':
+		return ':';
 	case '"': // Э
 		return '|';
 	case '\'': // э
@@ -62,11 +66,7 @@ uint8_t convertSymbol(uint8_t symbol, bool returnItself)
 	case '{': // Х
 		return 'h';
 	case '[': // х
-		return 'H';
-	case '}': // Ъ
-		return '\x7F';
-	case ']': // ъ
-		return '_';
+		return 'H'; 
 	case ':': // Ж
 		return 'v';
 	case ';': // ж
