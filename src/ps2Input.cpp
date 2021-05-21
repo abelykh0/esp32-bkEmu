@@ -8,6 +8,7 @@ using namespace fabgl;
 static Keyboard* _keyboard;
 static VirtualKeyItem _virtualKeyItem;
 uint8_t ModifierKeyState = 0;
+uint8_t PrevModifierKeyState = 0;
 
 void Ps2_Initialize(PS2Controller* inputController)
 {
@@ -16,6 +17,7 @@ void Ps2_Initialize(PS2Controller* inputController)
 
 static void updateModifiers(VirtualKey virtualKey, bool keyDown)
 {
+    PrevModifierKeyState = ModifierKeyState;
     switch (virtualKey)
     {
         case VirtualKey::VK_LCTRL:

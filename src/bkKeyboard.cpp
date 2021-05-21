@@ -112,8 +112,16 @@ bool OnKey(fabgl::VirtualKeyItem* virtualKey)
 			// Extended memory on / off
 			symbol = 140;
 			break;
+		case VirtualKey::VK_RALT: // АР2
+		case VirtualKey::VK_LALT:
+			break;
 		default:
 			symbol = virtualKey->ASCII;
+			if (symbol > 90)
+			{
+				symbol -= 32;
+			}
+
 			symbol = convertSymbol(symbol, false);
 			if (symbol != '\0')
 			{
@@ -156,15 +164,20 @@ bool OnKey(fabgl::VirtualKeyItem* virtualKey)
 			break;
 		case VirtualKey::VK_LCTRL: // РУС
 		case VirtualKey::VK_LGUI:
-			symbol = 0x0E;
+			if ((PrevModifierKeyState & (ModifierKeys::LeftControl | ModifierKeys::LeftWindows)) == 0)
+			{
+				symbol = 0x0E;
+			}
 			break;
 		case VirtualKey::VK_RCTRL: // ЛАТ
 		case VirtualKey::VK_RGUI:
-			symbol = 0x0F;
+			if ((PrevModifierKeyState & (ModifierKeys::RightControl | ModifierKeys::RightWindows)) == 0)
+			{
+				symbol = 0x0F;
+			}
 			break;
 		case VirtualKey::VK_RALT: // АР2
 		case VirtualKey::VK_LALT:
-			symbol = 0x0F;
 			break;
 		default:
 			symbol = virtualKey->ASCII;
@@ -176,11 +189,11 @@ bool OnKey(fabgl::VirtualKeyItem* virtualKey)
 
 			break;
 		}
+	}
 
-		if (symbol == '\0')
-		{
-			return false;
-		}
+	if (symbol == '\0')
+	{
+		return false;
 	}
 
 	Environment.WriteByte(0177660, Environment.ReadByte(0177660) | 0x80);

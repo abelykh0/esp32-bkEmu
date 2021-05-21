@@ -148,6 +148,7 @@ enum ModifierKeys
 };
 
 extern uint8_t ModifierKeyState;
+extern uint8_t PrevModifierKeyState;
 
 fabgl::VirtualKeyItem* KeyboardGetNextVirtualKey();
 
