@@ -226,11 +226,21 @@ bool loadSnapshotSetup(const char* path)
 			_fileCount++;
 			fileIndex++;
 		}
+
+		// Sort files alphabetically
+		if (_fileCount > 0)
+		{
+			qsort(_fileNames, _fileCount, MAX_LFN + 1, fileCompare);
+			Serial.printf("file count=%d\r\n", _fileCount);
+		}
 	}
 	else
 	{
 		result = false;
 	}
+
+	// Unmount file system
+	unmount();		
 
 	if (result)
 	{
