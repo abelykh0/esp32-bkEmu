@@ -1,5 +1,5 @@
 # esp32-bkEmu
-BK-0010 Emulator
+BK-0010 Emulator (БК-0010)
 
 ![Screenshot](https://github.com/abelykh0/esp32-bkEmu/blob/main/doc/Screenshot.png)
 
