@@ -165,17 +165,17 @@ bool OnKey(fabgl::VirtualKeyItem* virtualKey)
 		case VirtualKey::VK_LALT:
 			break;
 		default:
-			symbol = virtualKey->ASCII;
-			if (symbol > 90)
+			symbol = convertSymbol(virtualKey->ASCII, true);
+			symbol &= 0x3F;
+			if (symbol >= '0' && symbol <= '9')
 			{
-				symbol -= 32;
+				symbol |= 0x80;
 			}
-
-			symbol = convertSymbol(symbol, false);
-			if (symbol != '\0')
+			else
 			{
-				symbol += 96;
+				symbol |= 0xC0;
 			}
+			Serial.printf("s=%d\r\n", symbol);
 			break;
 		}
 	}
