@@ -28,10 +28,10 @@ This project uses several libraries:
 * Installing PlatformIO IDE Extension on VS Code:
   * Click on the **Extensions** icon or press **Ctrl+Shift+X** to open the Extensions tab
   * Search for **“PlatformIO IDE”**
-  ![PlatformioIDE](https://github.com/abelykh0/esp32-bkEmu/blob/main/doc/platformio_vscode.png)
+  ![PlatformioIDE](doc/platformio_vscode.png)
   * Click **Install** button
   * After that, the **PlatformIO** icon should show up on the left sidebar as well as an **Home** icon that redirects you to PlatformIO home
-  * Click to Platformio **Home** ![icon:](https://github.com/abelykh0/esp32-bkEmu/blob/main/doc/platformio_home.png)
+  * Click to Platformio **Home** ![icon:](doc/platformio_home.png)
   * Click **Open project** button and select **esp32-bkEmu** folder
-  * After that connect **VGA32 v1.4 Board** to USB port and click **Build** and **Upload** ![icons:](https://github.com/abelykh0/esp32-bkEmu/blob/main/doc/platformio_build_upload.png)
+  * After that connect **VGA32 v1.4 Board** to USB port and click **Build** and **Upload** ![icons:](doc/platformio_build_upload.png)
    
