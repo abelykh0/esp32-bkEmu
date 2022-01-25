@@ -32,6 +32,6 @@ This project uses several libraries:
   * Click **Install** button
   * After that, the **PlatformIO** icon should show up on the left sidebar as well as an **Home** icon that redirects you to PlatformIO home
   * Click to Platformio **Home** ![icon:](doc/platformio_home.png)
-  * Click **Open project** button and select **esp32-bkEmu** folder
+  * Click **Open project** button and select **esp32-bkEmu** ![folder:](doc/platformio_open_project.png)
   * After that connect **VGA32 v1.4 Board** to USB port and click **Build** and **Upload** ![icons:](doc/platformio_build_upload.png)
    
