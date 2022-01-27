@@ -4,7 +4,10 @@ BK-0010 Emulator (БК-0010)
 ![Screenshot](https://github.com/abelykh0/esp32-bkEmu/blob/main/doc/Screenshot.png)
 
 ## Hardware
-[VGA32 v1.4 Board](http://www.lilygo.cn/prod_view.aspx?TypeId=50033&Id=1083)
+* [VGA32 v1.4 Board](http://www.lilygo.cn/prod_view.aspx?TypeId=50033&Id=1083)
+* [TTGO VGA32 V1.4 3D case (optional)](https://www.thingiverse.com/thing:4675382)
+
+![3D case](doc/vga32_3Dcase.jpg)
 
 ## What it can do
 * Emulate [BK-0010](https://en.wikipedia.org/wiki/Electronika_BK)
