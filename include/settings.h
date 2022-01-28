@@ -5,6 +5,10 @@
 #define SDCARD
 #define BEEPER
 
+#define VER_MAJOR   0
+#define VER_MINOR   8
+#define VER_BUILD   0
+
 #define RESOLUTION VESA_768x576_60Hz
 #define SCREEN_WIDTH  96
 #define SCREEN_HEIGHT 288
