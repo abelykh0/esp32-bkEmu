@@ -96,6 +96,13 @@ void EmulatorTaskMain(void *unused)
 	BottomText.SetCursorPosition(32, 0);
 	BottomText.Print("F7 - Color / BW for 256x256 mode");
 
+	// The app version
+	char buf[16];
+	sprintf(buf, "Version %d.%d.%02d",
+		VER_MAJOR, VER_MINOR, VER_BUILD);
+	BottomText.SetCursorPosition(50, 1);
+	BottomText.Print(buf);
+
 	// Loop
 	while (true)
 	{
