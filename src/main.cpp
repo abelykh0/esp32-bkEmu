@@ -10,7 +10,7 @@ void setup()
 
     uint32_t freeHeap32 = heap_caps_get_free_size(MALLOC_CAP_32BIT);
     uint32_t freeHeap8 = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    Serial.printf("BK0010 emulator, ver.%d.%d.%d\r\n",
+    Serial.printf("BK0010 emulator, ver.%d.%d.%02d\r\n",
         VER_MAJOR, VER_MINOR, VER_BUILD);
     Serial.printf("Free heap 32BIT: %d, free heap 8BIT: %d\r\n", freeHeap32 - freeHeap8, freeHeap8);
 

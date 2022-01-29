@@ -98,7 +98,7 @@ void EmulatorTaskMain(void *unused)
 
 	// The app version
 	char buf[16];
-	sprintf(buf, "Version %d.%d.%d",
+	sprintf(buf, "Version %d.%d.%02d",
 		VER_MAJOR, VER_MINOR, VER_BUILD);
 	BottomText.SetCursorPosition(50, 1);
 	BottomText.Print(buf);
