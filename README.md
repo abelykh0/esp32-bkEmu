@@ -1,7 +1,7 @@
 # esp32-bkEmu
 BK-0010 Emulator (БК-0010)
 
-![Screenshot](https://github.com/abelykh0/esp32-bkEmu/blob/main/doc/screenshot.jpg)
+![Screenshot](doc/screenshot.jpg)
 
 ## Hardware
 * [VGA32 v1.4 Board](http://www.lilygo.cn/prod_view.aspx?TypeId=50033&Id=1083)
