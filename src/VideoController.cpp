@@ -25,10 +25,16 @@
 #define FORE_COLOR 0x2A
 #define FONT_HEIGHT 10
 
+static const uint8_t screenModeZero = 0;
+static const uint8_t noScroll = 0330;
+static const uint8_t noExtendedMemory = 0x02;
+
 extern "C" void IRAM_ATTR drawScanline(void* arg, uint8_t* dest, int scanLine);
 
 void VideoController::Initialize(bkEnvironment* environment)
 {
+    this->_environment = environment;
+
     this->ScreenMode = environment->GetPointer(0x0020);
     this->VideoRam = environment->GetPointer(0x4000);
     this->Scroll = environment->GetPointer(0xFFB4);
@@ -49,6 +55,25 @@ void VideoController::Initialize(bkEnvironment* environment)
             this->Attributes[y * TEXT_WIDTH + x] = this->_normalAttribute;
         }
     }
+}
+
+void VideoController::ShowScreenshot(uint8_t* screenShot)
+{
+    this->ScreenMode = (uint8_t*)&screenModeZero;
+    this->Scroll = (uint8_t*)&noScroll;
+    this->ExtendedMemory = (uint8_t*)&noExtendedMemory;
+    this->_palette512x256bw = this->Palette512x256;
+    this->Palette512x256 = this->_normalAttribute;
+    this->VideoRam = screenShot;
+}
+
+void VideoController::Resume()
+{
+    this->ScreenMode = this->_environment->GetPointer(0x0020);
+    this->Scroll = this->_environment->GetPointer(0xFFB4);
+    this->ExtendedMemory = this->_environment->GetPointer(0xFFB5);
+    this->Palette512x256 = this->_palette512x256bw;
+    this->VideoRam = this->_environment->GetPointer(0x4000);
 }
 
 void VideoController::Start(char const* modeline)

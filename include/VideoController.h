@@ -44,7 +44,12 @@ public:
 
     uint8_t IRAM_ATTR createRawPixel(uint8_t color);
 
+    void ShowScreenshot(uint8_t* screenShot);
+    void Resume();
+
 private:
+    bkEnvironment* _environment;
+    uint32_t* _palette512x256bw;
     void InitPalette(uint32_t* palette, uint8_t backColor, uint8_t foreColor);
     void InitPalette(uint32_t* palette, uint8_t* colors);
     void cursorNext();

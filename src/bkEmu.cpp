@@ -27,6 +27,7 @@
 #include "SD.h"
 #include "ScreenArea.h"
 #include "FileSystem.h"
+#include "keyboardLayout.h"
 
 pdp_regs pdp;
 extern "C" void timing(pdp_regs* p);
@@ -41,6 +42,7 @@ static ScreenArea BottomText(&Screen, 0, TEXT_WIDTH, TEXT_HEIGHT - 2, 2);
 ScreenArea DebugScreen(&Screen, 0, TEXT_WIDTH, 0, TEXT_HEIGHT - 2);
 bkEnvironment Environment;
 static fabgl::PS2Controller* InputController;
+static bool ShowingHelp = false;
 
 static void startKeyboard()
 {
@@ -51,6 +53,19 @@ static void startKeyboard()
 
 static bool pausedLoop()
 {
+	if (ShowingHelp == true)
+	{
+		VirtualKeyItem* virtualKeyItem = KeyboardGetNextVirtualKey();
+		if (virtualKeyItem != nullptr && virtualKeyItem->down)
+		{
+			Screen.Resume();
+			ShowingHelp = false;
+			return false;
+		}
+
+		return true;
+	}
+
 	if (Screen._mode == 0)
 	{
 		return false;
@@ -116,6 +131,12 @@ void EmulatorTaskMain(void *unused)
 		fabgl::VirtualKey virtualKey = bk_loop();
 		switch (virtualKey)
 		{
+		case fabgl::VirtualKey::VK_F1:
+			//Screen._mode = 1;
+			ShowingHelp = true;
+			Screen.ShowScreenshot((uint8_t*)KbdLayout);
+			break;
+		
 		case fabgl::VirtualKey::VK_F3:
 			Screen._mode = 1;
 			loadSnapshotSetup("/");

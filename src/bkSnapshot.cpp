@@ -7,7 +7,7 @@
 #include "SD.h"
 #include "defines.h"
 
-static fs::FS* _fileSystem;
+//static fs::FS* _fileSystem;
 
 extern bkEnvironment Environment;
 extern pdp_regs pdp;
@@ -39,6 +39,8 @@ static void unmount()
 
 bool LoadSnapshot(File file)
 {
+	mount();
+
 	FileHeader fileHeader;
 	size_t headerSize = sizeof(fileHeader);
 	size_t bytesRead = file.read((uint8_t*)&fileHeader, headerSize);
@@ -64,6 +66,8 @@ bool LoadSnapshot(File file)
 
 	pdp.regs[SP] = 01000;
 	pdp.regs[PC] = fileHeader.Start;
+
+	unmount();
 
 	return true;
 }
