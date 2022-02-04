@@ -25,4 +25,8 @@ This project uses several libraries:
 * Covox
 * Timer
 * BK-0011?
-   
+
+## Sowtware Tools
+* Getting Started with [VS Code and PlatformIO IDE for ESP32](/docs/VSCodeHowTo)
+* Graphics [bitmap file to C-style hex converter](https://github.com/robertgallup/python-bmp2hex)
+
