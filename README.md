@@ -27,6 +27,6 @@ This project uses several libraries:
 * BK-0011?
 
 ## Sowtware Tools
-* Getting Started with [VS Code and PlatformIO IDE for ESP32](/docs/VSCodeHowTo)
+* Getting Started with [VS Code and PlatformIO IDE for ESP32](/doc/VSCodeHowTo)
 * Graphics [bitmap file to C-style hex converter](https://github.com/robertgallup/python-bmp2hex)
 
