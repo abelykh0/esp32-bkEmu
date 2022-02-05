@@ -105,8 +105,10 @@ void EmulatorTaskMain(void *unused)
 	bk_reset();
 
 	BottomText.SetCursorPosition(0, 0);
-	BottomText.Print("F3 - Load file from SD card");
+	BottomText.Print("F1 - Show keyboard layout help");
 	BottomText.SetCursorPosition(0, 1);
+	BottomText.Print("F3 - Load file from SD card");
+	BottomText.SetCursorPosition(32, 1);
 	BottomText.Print("F5 - Reset");
 	BottomText.SetCursorPosition(32, 0);
 	BottomText.Print("F7 - Color / BW for 256x256 mode");

@@ -1,7 +1,7 @@
 # esp32-bkEmu
 BK-0010 Emulator (БК-0010)
 
-![Screenshot](doc/screenshot.jpg)
+![Screenshot](doc/hello.jpg) ![Screenshot](doc/help.jpg)
 
 ## Hardware
 * [VGA32 v1.4 Board](http://www.lilygo.cn/prod_view.aspx?TypeId=50033&Id=1083)
@@ -26,7 +26,7 @@ This project uses several libraries:
 * Timer
 * BK-0011?
 
-## Sowtware Tools
+## Software Tools
 * Getting Started with [VS Code and PlatformIO IDE for ESP32](/doc/VSCodeHowTo)
 * Graphics [bitmap file to C-style hex converter](https://github.com/robertgallup/python-bmp2hex)
 
